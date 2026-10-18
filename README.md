@@ -2,7 +2,114 @@
 
 希望通过真诚、温和且有边界的对话，陪伴正在经历痛苦的人，帮助他们缓解自杀或自伤的念头，并连接现实中的支持与专业帮助。
 
-**当前状态：项目说明与设计目标草案。现有安装版技能仍包含通用工作流封装内容，尚未按下述目标完成改写与验证，不应作为已就绪的危机支持工具使用。**
+**当前状态：0.1 对话原型。提供 Codex 技能、WorkBuddy 导入包和 DeepSeek 本地聊天软件。已完成本地接口模拟测试，尚未用真实 API Key 联调，也未经临床验证或专业危机服务验收。**
+
+## 安装与调用
+
+选择一种使用方式即可。Codex 和 WorkBuddy 使用各自客户端选定的模型；DeepSeek 网页聊天软件则通过服务端直接调用 DeepSeek API。安装技能不会自动切换客户端模型，也不会自动获得急救或热线检索能力。
+
+### 方式一：在 Codex 输入一句话安装
+
+把下面整段复制到 Codex 对话框：
+
+```text
+请使用 skill-installer 安装这个 GitHub 仓库根目录中的 Skill：
+https://github.com/maomaoti1124-bot/dabingfangzisha
+仓库路径为 .，技能名称为 dabing-fangzisha-skill，目标目录为 ~/.agents/skills/dabing-fangzisha-skill/。
+请先读取 SKILL.md，检查来源和文件内容，再完成安装。如果存在同名目录，请报告差异，不要静默覆盖。
+安装后请检查 SKILL.md 和引用文件存在，并告诉我如何调用；本轮不要自动开始心理支持对话。
+```
+
+安装后，在新一轮对话中输入：
+
+```text
+$dabing-fangzisha-skill 我最近有些难受，想聊一聊。
+```
+
+如果没有出现在技能列表中，重启 Codex 后再检查。也可以在终端手动安装（需要 Git，以下适用于 macOS / Linux）：
+
+```sh
+mkdir -p "$HOME/.agents/skills"
+git clone https://github.com/maomaoti1124-bot/dabingfangzisha.git "$HOME/.agents/skills/dabing-fangzisha-skill"
+```
+
+同名目录已存在时，Git 会报错。先检查已有文件，保留备份后再决定更新方式，不要直接删除旧目录。
+
+### 方式二：导入 WorkBuddy 后调用
+
+1. [下载 WorkBuddy 技能包](https://github.com/maomaoti1124-bot/dabingfangzisha/raw/refs/heads/main/dist/dabing-fangzisha-workbuddy.zip)，保存到本机。不要把整个软件目录重新压缩作为导入包。
+2. 打开 WorkBuddy 的“专家·技能·连接器 → 技能 → 添加技能 → 上传技能”，选择这个 ZIP 文件。
+3. 在“已安装”中确认技能已启用，在对话中选择该技能，或明确输入：
+
+```text
+请使用已安装的 dabing-fangzisha-skill（大冰防zisha skill），以温和、直接的方式陪我聊聊。
+```
+
+根据 [WorkBuddy 官方说明](https://www.codebuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market)，对话搜索安装适用于技能市场，自定义技能使用上传导入。本项目没有声称已上架市场；导入包已做结构检查，尚未在你的 WorkBuddy 客户端完成实际导入验收。不同版本的入口名称可能有所变化。
+
+包内仅包含对话规则和参考示例，不含 API Key。需要重新打包时，在仓库目录运行：
+
+```sh
+python3 scripts/build_workbuddy.py
+```
+
+### 方式三：运行接入 DeepSeek 的聊天软件
+
+不需要安装 Codex 或 WorkBuddy。准备 Python 3.9 及以上版本、Git，以及 [DeepSeek 开发者平台](https://platform.deepseek.com/)提供的有效 API Key。API 使用受服务商的账户和计费规则约束。
+
+在终端执行：
+
+```sh
+git clone https://github.com/maomaoti1124-bot/dabingfangzisha.git
+cd dabingfangzisha
+python3 server.py --ask-key
+```
+
+Windows 可将最后一行改为 `py server.py --ask-key`。本项目只使用 Python 标准库，无需运行 `pip install`。
+
+随后：
+
+1. 在**本地终端**输入 DeepSeek API Key，输入时不显示，应用不将其保存到文件。不要把密钥发送到聊天、Issue 或公开仓库。
+2. 打开 [http://127.0.0.1:8787](http://127.0.0.1:8787)。检查页面上方显示密钥已配置，并确认页面说明。
+3. 勾选了解数据发送方式后，输入文字并发送。网页会将本轮及当前上下文交给本地服务，再转发到 DeepSeek；不是离线聊天。
+
+没有密钥也可以运行 `python3 server.py` 浏览页面，但不能获得模型回复。点击网页右上角“连接说明”查看配置方法。
+
+默认模型为 `deepseek-flash`，接口为 `https://api.deepseek.com/chat/completions`，依据 [DeepSeek 官方 API 文档](https://api-docs.deepseek.com/zh-cn/)。可通过 `DEEPSEEK_MODEL` 环境变量选择账户可用的模型；密钥也可由 `DEEPSEEK_API_KEY` 环境变量提供。`.env.example` 只是示例，应用不会自动读取 `.env`。
+
+端口被占用时运行 `python3 server.py --ask-key --port 8788`，再打开终端显示的地址。停止服务按 Ctrl + C。本原型仅监听 `127.0.0.1`，没有多用户登录和公共部署方案，不应直接开放到互联网。
+
+### 常见问题
+
+| 情况 | 处理方式 |
+|---|---|
+| 提示未配置 API Key | 在运行服务的终端用 `--ask-key` 重新启动，或设置 `DEEPSEEK_API_KEY` 后重启。 |
+| 密钥无效、余额不足、服务繁忙 | 按页面提示检查 DeepSeek 账户或稍后手动重试，应用不会无限自动重试。 |
+| 点击停止等待 | 只停止浏览器等待，服务端和供应商可能仍在处理，不能保证停止计费。 |
+| 想清除聊天 | 点击“新对话”，或关闭/刷新页面。本应用不使用浏览器持久化保存历史；不能因此推断服务商也删除了数据。 |
+| 对话过长 | 最多 20 轮、单条 6000 字符，请求体最多 128 KiB；超限会提示，不会静默截断已有上下文。 |
+| 模型回复不合适 | 不将模型判断作为安全结论；联系现实支持。反馈时使用虚构或去标识化内容。 |
+
+### 文件与检查
+
+```text
+SKILL.md                         Codex 入口，也是 DeepSeek 的服务端对话规则来源
+agents/openai.yaml               Codex 界面信息
+references/conversation-examples.md  虚构示例与参考来源
+server.py                        仅本机可访问的 DeepSeek API 代理
+web/                             聊天页面
+scripts/build_workbuddy.py        WorkBuddy 打包脚本
+dist/dabing-fangzisha-workbuddy.zip  WorkBuddy 导入包
+tests/test_server.py             本地及模拟接口测试
+```
+
+运行检查：
+
+```sh
+python3 -m unittest discover -s tests -v
+```
+
+测试不会连接真实 DeepSeek API，也不证明模型能可靠识别危机或改善用户状态。Codex 安装位置与调用方式参考 [OpenAI 官方技能文档](https://learn.chatgpt.com/docs/build-skills)；WorkBuddy 导入结构参考 [WorkBuddy 开放平台](https://open.workbuddy.cn/docs/skill)。
 
 ## 为什么做这个项目
 
@@ -63,7 +170,7 @@ Skill 文件本身不能保证匿名、不留记录或端到端加密。数据�
 
 ## 后续需要完成的工作
 
-- 将现有技能正文、触发描述和默认提示同步为本项目的对话支持用途。
+- 使用真实 API Key 完成端到端联调，并在目标 WorkBuddy 客户端验证导入和调用。
 - 补充适用场景、资源核实流程，以及遗漏危险线索时的处理边界。
 - 用虚构案例检查当前求助、非紧急情绪困扰、亲友求助和引用文本等不同情境，避免误触发或忽略风险。
 - 在面向真实危机用户前，寻求具备相关资质的专业人员审阅，并明确运营责任与人工支持安排。

@@ -1,0 +1,4 @@
+interface:
+  display_name: "大冰防zisha skill"
+  short_description: "温和倾听、关注当下安全，帮助连接现实陪伴与专业支持的中文对话原型"
+  default_prompt: "使用 $dabing-fangzisha-skill，以温和、直接的方式陪我聊聊此刻的困难。"

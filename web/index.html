@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>先说一会儿 · 大冰防zisha skill</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="首页"><span class="brand-mark">◡</span><span>先说一会儿<small>大冰防zisha · 对话原型</small></span></a>
+      <div class="side-copy"><span class="eyebrow">TAKE YOUR TIME</span><h1>不用把话<br>整理好。</h1><p>从此刻的感受开始，<br>一句也可以。</p></div>
+      <div class="side-bottom"><span class="little-leaf">✳</span><p>这里由 AI 回应。<br>也请为现实中的陪伴，<br>留一个位置。</p><span class="version">LOCAL PROTOTYPE / 0.1</span></div>
+    </aside>
+    <main>
+      <header class="topbar"><div id="connection" class="connection" role="status"><i></i><span>正在检查连接</span></div><div class="top-actions"><button id="setup" class="text-button">连接说明</button><button id="clear" class="text-button">新对话 <span>↗</span></button></div></header>
+      <section class="safety-strip" aria-label="紧急帮助提醒"><span class="safety-icon">＋</span><p>如果已经受伤，或马上可能伤害自己，请直接联系当地急救、前往急诊，并请可信任的人陪伴。不要等待 AI 回复。</p><button id="help" class="help-link">找现实中的帮助 ↗</button></section>
+      <section class="chat-area" aria-label="对话区域">
+        <div id="welcome" class="welcome"><div class="welcome-mark">◡</div><p class="eyebrow">ONE THOUGHT AT A TIME</p><h2>这一刻，你感觉怎么样？</h2><p class="welcome-copy">你可以慢慢说。不需要证明自己应该难过，<br class="desktop-break">也不用立刻找出所有问题的答案。</p><div class="suggestions"><button data-prompt="最近觉得很累，想找个地方说说。">最近有点累 <span>↗</span></button><button data-prompt="我想聊聊，怎么向信任的人开口求助。">不知道怎么开口 <span>↗</span></button><button data-prompt="我担心一个朋友，想知道怎么陪伴他。">我在担心一个朋友 <span>↗</span></button></div></div>
+        <div id="messages" class="messages" role="log" aria-label="聊天记录" aria-live="polite"></div>
+      </section>
+      <section class="composer-section">
+        <div id="feedback" class="feedback" role="status"></div>
+        <button id="retry" class="retry" hidden>重试上一条请求</button>
+        <form id="chat-form"><label class="sr-only" for="message">写下你想说的话</label><textarea id="message" maxlength="6000" rows="2" placeholder="写下你想说的话……"></textarea><div class="composer-bottom"><span>Enter 发送 · Shift + Enter 换行</span><div><button type="button" id="stop" class="text-button" hidden>停止等待</button><button type="submit" id="send" class="send" disabled>发送 <span>↑</span></button></div></div></form>
+        <label class="consent"><input id="consent" type="checkbox"><span>我了解：发送后，本次对话会传至 DeepSeek API 处理。本应用不主动保存聊天到磁盘；服务商的数据处理以其政策为准。</span></label>
+        <p class="footer-note">AI 支持性对话原型，未经临床验证。它可能出错，不能替代急救或专业服务，也不代表大冰本人。</p>
+      </section>
+    </main>
+  </div>
+  <dialog id="setup-dialog"><button class="dialog-close" data-close="setup-dialog" aria-label="关闭连接说明">×</button><span class="eyebrow">LOCAL CONNECTION</span><h2>连接你的 DeepSeek</h2><p>密钥只在本地服务端使用，不需要粘贴到网页或对话里。</p><ol><li>在启动服务的终端按 Ctrl + C 停止服务。</li><li>在项目目录运行：<pre>python3 server.py --ask-key</pre><span>Windows 可使用 <code>py server.py --ask-key</code>。</span></li><li>在终端输入密钥，重新打开或刷新此页面。</li></ol><p>已配置环境变量 <code>DEEPSEEK_API_KEY</code> 时，可直接运行 <code>python3 server.py</code>。未配置密钥时只能浏览页面。</p><a href="https://platform.deepseek.com/" target="_blank" rel="noopener noreferrer">前往 DeepSeek 开发者平台 ↗</a></dialog>
+  <dialog id="help-dialog"><button class="dialog-close" data-close="help-dialog" aria-label="关闭现实帮助说明">×</button><span class="eyebrow">YOU CAN ASK FOR COMPANY</span><h2>让一个人知道，<br>你现在需要陪伴。</h2><p>可以联系一个你信任、相处安全的人。不一定是家人，也可以是朋友、同事或专业人员。</p><blockquote>我现在很难受，有伤害自己的念头，需要有人陪着我。你能给我打电话、来陪我，或陪我去医院吗？</blockquote><button id="copy-help" class="primary-button">复制这段求助信息</button><p id="copy-feedback" role="status"></p><p>如果已受伤或即将采取伤害行动，请立即联系当地急救或前往急诊。本应用没有热线检索、自动报警或联络救援功能。</p></dialog>
+</body>
+</html>
