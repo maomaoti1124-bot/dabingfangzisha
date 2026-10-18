@@ -2,11 +2,11 @@
 
 希望通过真诚、温和且有边界的对话，陪伴正在经历痛苦的人，帮助他们缓解自杀或自伤的念头，并连接现实中的支持与专业帮助。
 
-**当前状态：0.1 对话原型。提供 Codex 技能、WorkBuddy 导入包和 DeepSeek 本地聊天软件。已完成本地接口模拟测试，尚未用真实 API Key 联调，也未经临床验证或专业危机服务验收。**
+**当前状态：0.1 对话原型。提供 Codex 技能、WorkBuddy 导入包和可直接粘贴到 DeepSeek 对话框的规则文本。DeepSeek 的使用方式不需要 API Key。项目未经临床验证或专业危机服务验收。**
 
 ## 安装与调用
 
-选择一种使用方式即可。Codex 和 WorkBuddy 使用各自客户端选定的模型；DeepSeek 网页聊天软件则通过服务端直接调用 DeepSeek API。安装技能不会自动切换客户端模型，也不会自动获得急救或热线检索能力。
+选择一种使用方式即可。Codex 和 WorkBuddy 安装技能文件；DeepSeek 在现有网页或 App 的对话框中粘贴规则后使用。三者均不会因为载入规则而自动获得急救、热线检索或其他工具能力。
 
 ### 方式一：在 Codex 输入一句话安装
 
@@ -53,51 +53,46 @@ git clone https://github.com/maomaoti1124-bot/dabingfangzisha.git "$HOME/.agents
 python3 scripts/build_workbuddy.py
 ```
 
-### 方式三：运行接入 DeepSeek 的聊天软件
+### 方式三：在 DeepSeek 对话框“安装”，不调用 API
 
-不需要安装 Codex 或 WorkBuddy。准备 Python 3.9 及以上版本、Git，以及 [DeepSeek 开发者平台](https://platform.deepseek.com/)提供的有效 API Key。API 使用受服务商的账户和计费规则约束。
+这里的“安装”是把对话规则载入当前聊天，不是给 DeepSeek 安装插件，也不承诺永久保存或跨对话生效。**无需 API Key、终端、Python 或另写聊天软件。**
 
-在终端执行：
+1. 打开 [DeepSeek 完整对话规则](https://github.com/maomaoti1124-bot/dabingfangzisha/blob/main/DEEPSEEK_PROMPT.md)。也可用 [纯文本版本](https://raw.githubusercontent.com/maomaoti1124-bot/dabingfangzisha/main/DEEPSEEK_PROMPT.md) 方便全选复制。
+2. 复制文件的**全部正文**，粘贴到 DeepSeek 网页或 App 的新对话框，点击发送。不需要让 DeepSeek 自己打开 GitHub 链接。
+3. 它回应已理解约定后，直接说出你想聊的内容，例如：
 
-```sh
-git clone https://github.com/maomaoti1124-bot/dabingfangzisha.git
-cd dabingfangzisha
-python3 server.py --ask-key
+```text
+我最近有些难受，想先找个地方说说。
 ```
 
-Windows 可将最后一行改为 `py server.py --ask-key`。本项目只使用 Python 标准库，无需运行 `pip install`。
+如果想先在对话框发一条安装请求，可以输入：
 
-随后：
+```text
+我想在这个对话中使用“大冰防zisha skill”。
+接下来我会粘贴完整的对话规则，请按这些规则与我交流。
+不需要 API 或运行代码，不要声称安装了插件或获得永久记忆。
+请等我粘贴完规则后再开始。
+```
 
-1. 在**本地终端**输入 DeepSeek API Key，输入时不显示，应用不将其保存到文件。不要把密钥发送到聊天、Issue 或公开仓库。
-2. 打开 [http://127.0.0.1:8787](http://127.0.0.1:8787)。检查页面上方显示密钥已配置，并确认页面说明。
-3. 勾选了解数据发送方式后，输入文字并发送。网页会将本轮及当前上下文交给本地服务，再转发到 DeepSeek；不是离线聊天。
-
-没有密钥也可以运行 `python3 server.py` 浏览页面，但不能获得模型回复。点击网页右上角“连接说明”查看配置方法。
-
-默认模型为 `deepseek-flash`，接口为 `https://api.deepseek.com/chat/completions`，依据 [DeepSeek 官方 API 文档](https://api-docs.deepseek.com/zh-cn/)。可通过 `DEEPSEEK_MODEL` 环境变量选择账户可用的模型；密钥也可由 `DEEPSEEK_API_KEY` 环境变量提供。`.env.example` 只是示例，应用不会自动读取 `.env`。
-
-端口被占用时运行 `python3 server.py --ask-key --port 8788`，再打开终端显示的地址。停止服务按 Ctrl + C。本原型仅监听 `127.0.0.1`，没有多用户登录和公共部署方案，不应直接开放到互联网。
+然后粘贴上面的完整规则文件。只发名称或仓库链接，并不能确保它已经读取规则。新开对话或上下文遗失时，重新粘贴；模型回复“理解了”也不等于已验证其能正确处理所有情境。
 
 ### 常见问题
 
 | 情况 | 处理方式 |
 |---|---|
-| 提示未配置 API Key | 在运行服务的终端用 `--ask-key` 重新启动，或设置 `DEEPSEEK_API_KEY` 后重启。 |
-| 密钥无效、余额不足、服务繁忙 | 按页面提示检查 DeepSeek 账户或稍后手动重试，应用不会无限自动重试。 |
-| 点击停止等待 | 只停止浏览器等待，服务端和供应商可能仍在处理，不能保证停止计费。 |
-| 想清除聊天 | 点击“新对话”，或关闭/刷新页面。本应用不使用浏览器持久化保存历史；不能因此推断服务商也删除了数据。 |
-| 对话过长 | 最多 20 轮、单条 6000 字符，请求体最多 128 KiB；超限会提示，不会静默截断已有上下文。 |
+| DeepSeek 要求 API Key | 说明你使用的是对话框规则方式，并直接粘贴 `DEEPSEEK_PROMPT.md`；不用运行 `server.py`。 |
+| DeepSeek 无法打开 GitHub | 在浏览器中打开规则文件，全选复制，再粘贴到对话框。 |
+| 只说技能名没有生效 | 名称不是内置命令，先发送完整规则，再开始对话。 |
+| 新对话没有沿用规则 | 在新对话中重新粘贴，不依赖未确认的跨会话记忆。 |
 | 模型回复不合适 | 不将模型判断作为安全结论；联系现实支持。反馈时使用虚构或去标识化内容。 |
 
 ### 文件与检查
 
 ```text
-SKILL.md                         Codex 入口，也是 DeepSeek 的服务端对话规则来源
+SKILL.md                         Codex 技能入口
+DEEPSEEK_PROMPT.md               DeepSeek 对话框完整规则，无需 API
 agents/openai.yaml               Codex 界面信息
 references/conversation-examples.md  虚构示例与参考来源
-server.py                        仅本机可访问的 DeepSeek API 代理
-web/                             聊天页面
 scripts/build_workbuddy.py        WorkBuddy 打包脚本
 dist/dabing-fangzisha-workbuddy.zip  WorkBuddy 导入包
 tests/test_server.py             本地及模拟接口测试
@@ -109,7 +104,7 @@ tests/test_server.py             本地及模拟接口测试
 python3 -m unittest discover -s tests -v
 ```
 
-测试不会连接真实 DeepSeek API，也不证明模型能可靠识别危机或改善用户状态。Codex 安装位置与调用方式参考 [OpenAI 官方技能文档](https://learn.chatgpt.com/docs/build-skills)；WorkBuddy 导入结构参考 [WorkBuddy 开放平台](https://open.workbuddy.cn/docs/skill)。
+仓库保留了此前的本地 API 实验代码及其模拟测试，作为可选开发材料，不属于 DeepSeek 对话框使用流程，不需要启动或配置密钥。测试不会连接真实 DeepSeek API，也不证明模型能可靠识别危机或改善用户状态。Codex 安装位置与调用方式参考 [OpenAI 官方技能文档](https://learn.chatgpt.com/docs/build-skills)；WorkBuddy 导入结构参考 [WorkBuddy 开放平台](https://open.workbuddy.cn/docs/skill)。
 
 ## 为什么做这个项目
 
@@ -170,7 +165,7 @@ Skill 文件本身不能保证匿名、不留记录或端到端加密。数据�
 
 ## 后续需要完成的工作
 
-- 使用真实 API Key 完成端到端联调，并在目标 WorkBuddy 客户端验证导入和调用。
+- 在 DeepSeek 对话框中验证规则使用情况，并在目标 WorkBuddy 客户端验证导入和调用。
 - 补充适用场景、资源核实流程，以及遗漏危险线索时的处理边界。
 - 用虚构案例检查当前求助、非紧急情绪困扰、亲友求助和引用文本等不同情境，避免误触发或忽略风险。
 - 在面向真实危机用户前，寻求具备相关资质的专业人员审阅，并明确运营责任与人工支持安排。
